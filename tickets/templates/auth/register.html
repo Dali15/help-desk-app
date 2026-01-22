@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Support Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0078d4;
+            --primary-dark: #005a9e;
+        }
+
+        html, body {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 20px;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .register-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .register-header p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .register-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-control {
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #1f1f1f;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-register {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-register:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+            color: white;
+        }
+
+        .register-footer {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .register-footer p {
+            margin: 0;
+            color: #616161;
+            font-size: 0.9rem;
+        }
+
+        .register-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .register-footer a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .alert-danger {
+            background-color: #fde7e7;
+            color: #d13438;
+        }
+
+        .alert-success {
+            background-color: #dffcf0;
+            color: #107c10;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .errorlist li {
+            color: #d13438;
+            font-size: 0.875rem;
+            margin: 0.25rem 0;
+        }
+
+        .helptext {
+            display: block;
+            font-size: 0.85rem;
+            color: #616161;
+            margin-top: 0.25rem;
+        }
+
+        ul.errorlist li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <h1><i class="fas fa-user-plus"></i> Support Pro</h1>
+                <p>Créez votre compte</p>
+            </div>
+
+            <div class="register-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                            <i class="fas fa-user"></i> Prénom
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.first_name.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                            <i class="fas fa-user"></i> Nom
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.last_name.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.email.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">
+                            <i class="fas fa-login"></i> Nom d'utilisateur
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.username.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">
+                            <i class="fas fa-lock"></i> Mot de passe
+                        </label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.password1.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">
+                            <i class="fas fa-lock"></i> Confirmer le mot de passe
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.password2.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-register mb-3">
+                        <i class="fas fa-user-plus"></i> Créer un compte
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <p class="small text-muted">
+                        Vous avez déjà un compte ? <a href="{% url 'login' %}">Connectez-vous</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="register-footer">
+                <p><small><i class="fas fa-lock"></i> Vos données sont sécurisées</small></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Support Pro{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0078d4;
+            --primary-dark: #005a9e;
+            --secondary: #50e6ff;
+            --background: #f3f3f3;
+            --surface: #ffffff;
+            --text-primary: #1f1f1f;
+            --text-secondary: #616161;
+            --success: #107c10;
+            --warning: #ffb900;
+            --danger: #d13438;
+            --info: #0078d4;
+        }
+
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            background-color: var(--background);
+            color: var(--text-primary);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            z-index: 3;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand img.site-logo {
+            height: 48px;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            object-fit: contain;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--secondary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-menu .dropdown-toggle::after {
+            display: none;
+        }
+
+        .user-menu .dropdown-menu {
+            background-color: var(--surface);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-menu .dropdown-item {
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .user-menu .dropdown-item:hover {
+            background-color: var(--background);
+            color: var(--primary);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-20deg);
+            width: 60%;
+            height: 60%;
+            background-image: url("{% static 'tickets/img/logo.png' %}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.06;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container-modern {
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        footer {
+            background-color: var(--surface);
+            border-top: 1px solid #e0e0e0;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .alert-success {
+            background-color: #e7f5e7;
+            color: var(--success);
+        }
+
+        .alert-danger {
+            background-color: #fde7e7;
+            color: var(--danger);
+        }
+
+        .alert-warning {
+            background-color: #fff4ce;
+            color: #d59e00;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .container-modern {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'dashboard' %}">
+                <img src="{% static 'tickets/img/logo.png' %}" alt="Support Pro" class="site-logo">
+                <span class="d-none d-md-inline">Support Pro</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="fas fa-chart-line"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'ticket_list' %}">
+                                <i class="fas fa-list"></i> Tickets
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'ticket_create' %}">
+                                <i class="fas fa-plus-circle"></i> Nouveau
+                            </a>
+                        </li>
+                        {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/" target="_blank">
+                                <i class="fas fa-cogs"></i> Admin
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <div class="user-menu dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i>
+                                <span>{{ user.first_name|default:user.username }}</span>
+                                {% if user.is_staff %}
+                                <span class="badge bg-danger">Admin</span>
+                                {% endif %}
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'dashboard' %}"><i class="fas fa-user"></i> Mon profil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt"></i> Connexion
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">
+                                <i class="fas fa-user-plus"></i> Inscription
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="container-modern">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Support Pro. Tous droits réservés. | Version 2.0.0</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

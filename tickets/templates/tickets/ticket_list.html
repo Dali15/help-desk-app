@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Tickets - Support Pro{% endblock %}
+
+{% block content %}
+<div class="header-actions mb-4">
+    <h1 class="page-title">
+        <i class="fas fa-ticket-alt"></i>
+        Liste des Tickets ({{ total_count }})
+    </h1>
+    <a href="{% url 'ticket_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nouveau Ticket
+    </a>
+</div>
+
+<!-- Filtres et recherche -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-filter"></i> Filtres et Recherche</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Rechercher par titre, ID..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-control">
+                    <option value="">--- Tous les statuts ---</option>
+                    <option value="OPEN" {% if request.GET.status == 'OPEN' %}selected{% endif %}>Ouvert</option>
+                    <option value="IN_PROGRESS" {% if request.GET.status == 'IN_PROGRESS' %}selected{% endif %}>En cours</option>
+                    <option value="RESOLVED" {% if request.GET.status == 'RESOLVED' %}selected{% endif %}>Résolu</option>
+                    <option value="CLOSED" {% if request.GET.status == 'CLOSED' %}selected{% endif %}>Fermé</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="priority" class="form-control">
+                    <option value="">--- Toutes les priorités ---</option>
+                    <option value="HIGH" {% if request.GET.priority == 'HIGH' %}selected{% endif %}>Élevée</option>
+                    <option value="MED" {% if request.GET.priority == 'MED' %}selected{% endif %}>Moyenne</option>
+                    <option value="LOW" {% if request.GET.priority == 'LOW' %}selected{% endif %}>Faible</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tableau des tickets -->
+{% if page_obj %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-hashtag"></i> ID</th>
+                    <th><i class="fas fa-heading"></i> Titre</th>
+                    <th><i class="fas fa-user"></i> Demandeur</th>
+                    <th><i class="fas fa-list"></i> Catégorie</th>
+                    <th><i class="fas fa-exclamation"></i> Priorité</th>
+                    <th><i class="fas fa-toggle-on"></i> Statut</th>
+                    <th><i class="fas fa-calendar"></i> Date</th>
+                    <th><i class="fas fa-cogs"></i> Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in page_obj %}
+                <tr {% if ticket.is_urgent %}class="table-danger"{% endif %}>
+                    <td><strong>#{{ ticket.id }}</strong> {% if ticket.is_urgent %}<span class="badge bg-danger"><i class="fas fa-bolt"></i> URGENT</span>{% endif %}</td>
+                    <td><strong>{{ ticket.title }}</strong></td>
+                    <td>{{ ticket.requester_name }}</td>
+                    <td>
+                        <span class="badge bg-secondary">{{ ticket.get_category_display }}</span>
+                    </td>
+                    <td>
+                        {% if ticket.priority == 'HIGH' %}
+                            <span class="badge bg-danger"><i class="fas fa-arrow-up"></i> {{ ticket.get_priority_display }}</span>
+                        {% elif ticket.priority == 'MED' %}
+                            <span class="badge bg-warning"><i class="fas fa-minus"></i> {{ ticket.get_priority_display }}</span>
+                        {% else %}
+                            <span class="badge bg-info"><i class="fas fa-arrow-down"></i> {{ ticket.get_priority_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if ticket.status == 'OPEN' %}
+                            <span class="badge bg-danger"><i class="fas fa-circle-notch"></i> {{ ticket.get_status_display }}</span>
+                        {% elif ticket.status == 'IN_PROGRESS' %}
+                            <span class="badge bg-warning"><i class="fas fa-spinner"></i> {{ ticket.get_status_display }}</span>
+                        {% elif ticket.status == 'RESOLVED' %}
+                            <span class="badge bg-info"><i class="fas fa-check-circle"></i> {{ ticket.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-success"><i class="fas fa-lock"></i> {{ ticket.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'ticket_edit' ticket.id %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ ticket.id }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i> Première
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                        Précédent
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                        Suivant
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">
+                        Dernière <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+{% else %}
+    <div class="alert alert-info" role="alert">
+        <i class="fas fa-info-circle"></i>
+        <strong>Aucun ticket trouvé.</strong> <a href="{% url 'ticket_create' %}">Créer un nouveau ticket</a>
+    </div>
+{% endif %}
+
+<!-- Modal de suppression -->
+<form id="deleteForm" method="POST" style="display:none;">
+    {% csrf_token %}
+</form>
+
+<script>
+function confirmDelete(ticketId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce ticket ?')) {
+        const form = document.getElementById('deleteForm');
+        form.action = `/tickets/${ticketId}/delete/`;
+        form.submit();
+    }
+}
+</script>
+
+<style>
+.table tbody tr.table-danger {
+    background-color: rgba(211, 52, 56, 0.1) !important;
+}
+
+.table tbody tr.table-danger td {
+    border-top: 1px solid rgba(211, 52, 56, 0.2);
+    border-bottom: 1px solid rgba(211, 52, 56, 0.2);
+}
+</style>
+{% endblock %}

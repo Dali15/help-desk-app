@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Support Pro{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">
+        <i class="fas fa-chart-line"></i>
+        Dashboard
+    </h1>
+</div>
+
+<!-- Statistiques principales -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-header">
+                    <h6><i class="fas fa-ticket-alt"></i> Total Tickets</h6>
+                </div>
+                <p class="stat-value">{{ total_tickets }}</p>
+                <small class="text-muted">Tous les tickets</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card stat-danger">
+            <div class="card-body">
+                <div class="stat-header">
+                    <h6><i class="fas fa-exclamation-circle"></i> Urgents</h6>
+                </div>
+                <p class="stat-value">{{ urgent_tickets }}</p>
+                <small class="text-muted">À traiter en priorité</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card stat-warning">
+            <div class="card-body">
+                <div class="stat-header">
+                    <h6><i class="fas fa-circle-notch"></i> Ouverts</h6>
+                </div>
+                <p class="stat-value">{{ open_tickets }}</p>
+                <small class="text-muted">En attente</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card stat-info">
+            <div class="card-body">
+                <div class="stat-header">
+                    <h6><i class="fas fa-spinner"></i> En cours</h6>
+                </div>
+                <p class="stat-value">{{ in_progress }}</p>
+                <small class="text-muted">Traitement en cours</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-signal\"></i> Statut des Tickets</h5>
+            </div>
+            <div class="card-body">
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="badge bg-danger"><i class="fas fa-circle-notch"></i> Ouverts</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="bar-fill" style="width: {% widthratio open_tickets total_tickets 100 %}%"></div>
+                    </div>
+                    <span>{{ open_tickets }}</span>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="badge bg-warning"><i class="fas fa-spinner\"></i> En cours</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="bar-fill" style="width: {% widthratio in_progress total_tickets 100 %}%"></div>
+                    </div>
+                    <span>{{ in_progress }}</span>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="badge bg-info"><i class="fas fa-check-circle"></i> Résolus</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="bar-fill" style="width: {% widthratio resolved total_tickets 100 %}%"></div>
+                    </div>
+                    <span>{{ resolved }}</span>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="badge bg-success"><i class="fas fa-lock"></i> Fermés</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="bar-fill" style="width: {% widthratio closed total_tickets 100 %}%"></div>
+                    </div>
+                    <span>{{ closed }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-exclamation"></i> Priorités</h5>
+            </div>
+            <div class="card-body">
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="badge bg-danger"><i class="fas fa-arrow-up"></i> Élevée</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="bar-fill bg-danger" style="width: {% widthratio high_priority total_tickets 100 %}%"></div>
+                    </div>
+                    <span>{{ high_priority }}</span>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="badge bg-warning"><i class="fas fa-minus"></i> Moyenne</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="bar-fill bg-warning" style="width: {% widthratio medium_priority total_tickets 100 %}%"></div>
+                    </div>
+                    <span>{{ medium_priority }}</span>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="badge bg-info"><i class="fas fa-arrow-down"></i> Faible</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="bar-fill bg-info" style="width: {% widthratio low_priority total_tickets 100 %}%"></div>
+                    </div>
+                    <span>{{ low_priority }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row g-3 mb-4">
+    <div class="col">
+        <a href="{% url 'ticket_create' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle"></i> Nouveau Ticket
+        </a>
+        <a href="{% url 'ticket_list' %}" class="btn btn-secondary btn-lg">
+            <i class="fas fa-list"></i> Voir tous les Tickets
+        </a>
+        <a href="{% url 'ticket_export_csv' %}" class="btn btn-success btn-lg">
+            <i class="fas fa-download"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- Tickets récents -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-history"></i> Tickets Récents</h5>
+    </div>
+    <div class="card-body">
+        {% if recent_tickets %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-heading"></i> Titre</th>
+                            <th><i class="fas fa-user"></i> Demandeur</th>
+                            <th><i class="fas fa-exclamation"></i> Priorité</th>
+                            <th><i class="fas fa-toggle-on"></i> Statut</th>
+                            <th><i class="fas fa-cogs"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in recent_tickets %}
+                        <tr>
+                            <td><strong>#{{ ticket.id }}</strong></td>
+                            <td><strong>{{ ticket.title|truncatewords:5 }}</strong></td>
+                            <td>{{ ticket.requester_name }}</td>
+                            <td>
+                                {% if ticket.priority == 'HIGH' %}
+                                    <span class="badge bg-danger"><i class="fas fa-arrow-up"></i> {{ ticket.get_priority_display }}</span>
+                                {% elif ticket.priority == 'MED' %}
+                                    <span class="badge bg-warning"><i class="fas fa-minus"></i> {{ ticket.get_priority_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-info"><i class="fas fa-arrow-down"></i> {{ ticket.get_priority_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ticket.status == 'OPEN' %}
+                                    <span class="badge bg-danger"><i class="fas fa-circle-notch"></i> {{ ticket.get_status_display }}</span>
+                                {% elif ticket.status == 'IN_PROGRESS' %}
+                                    <span class="badge bg-warning"><i class="fas fa-spinner"></i> {{ ticket.get_status_display }}</span>
+                                {% elif ticket.status == 'RESOLVED' %}
+                                    <span class="badge bg-info"><i class="fas fa-check-circle"></i> {{ ticket.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-success"><i class="fas fa-lock"></i> {{ ticket.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">Aucun ticket pour le moment</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.stat-card {
+    border-left: 4px solid var(--primary);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card.stat-danger {
+    border-left-color: var(--danger);
+}
+
+.stat-card.stat-warning {
+    border-left-color: var(--warning);
+}
+
+.stat-card.stat-info {
+    border-left-color: var(--info);
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.stat-header h6 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.stat-header i {
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0.5rem 0;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-label {
+    min-width: 120px;
+}
+
+.stat-bar {
+    flex: 1;
+    height: 24px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transition: width 0.3s ease;
+}
+
+.bar-fill.bg-danger {
+    background: var(--danger);
+}
+
+.bar-fill.bg-warning {
+    background: var(--warning);
+}
+
+.bar-fill.bg-info {
+    background: var(--info);
+}
+</style>
+{% endblock %}

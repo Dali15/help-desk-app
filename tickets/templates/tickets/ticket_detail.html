@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ticket.title }} - Support Pro{% endblock %}
+
+{% block content %}
+<div class="header-actions mb-4">
+    <h1 class="page-title">
+        <i class="fas fa-file-alt"></i>
+        Ticket #{{ ticket.id }}
+    </h1>
+    <div class="action-buttons">
+        <a href="{% url 'ticket_edit' ticket.id %}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Éditer
+        </a>
+        <a href="{% url 'ticket_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Description -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5><i class="fas fa-align-left"></i> Description</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ ticket.title }}</p>
+                <p>{{ ticket.description }}</p>
+                {% if ticket.attachments.all %}
+                <hr>
+                <h6>Pièces jointes</h6>
+                <div class="attachments">
+                    {% for att in ticket.attachments.all %}
+                        <div class="mb-2">
+                            {% if ".png" in att.file.name or ".jpg" in att.file.name or ".jpeg" in att.file.name or ".gif" in att.file.name %}
+                                <a href="{{ att.file.url }}" target="_blank"><img src="{{ att.file.url }}" alt="attachment" style="max-width:100%;height:auto;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.08);"></a>
+                                <div><a href="{{ att.file.url }}" download class="small">Télécharger</a> • <small class="text-muted">{{ att.uploaded_at|date:"d/m/Y H:i" }}</small></div>
+                            {% else %}
+                                <div><a href="{{ att.file.url }}" target="_blank">{{ att.file.name }}</a> <small class="text-muted">• {{ att.uploaded_at|date:"d/m/Y H:i" }}</small></div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if ticket.resolution_notes %}
+                <div class="alert alert-success mt-3">
+                    <h6><i class="fas fa-check-circle"></i> Notes de résolution :</h6>
+                    <p>{{ ticket.resolution_notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Commentaires -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-comments"></i> Commentaires ({{ comments.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                    <div class="comments-section">
+                        {% for comment in comments %}
+                        <div class="comment mb-3 pb-3 border-bottom">
+                            <div class="comment-header d-flex justify-content-between">
+                                <strong>{{ comment.author_name }}</strong>
+                                <small class="text-muted">{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <p class="comment-text mt-2">{{ comment.content }}</p>
+                            <form method="POST" action="{% url 'comment_delete' ticket.id comment.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger btn-sm-link" onclick="return confirm('Supprimer ce commentaire ?');">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <hr>
+                {% else %}
+                    <p class="text-muted">Aucun commentaire pour le moment.</p>
+                {% endif %}
+
+                <!-- Ajouter un commentaire -->
+                <h6 class="mt-4">Ajouter un commentaire</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.author_name }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.content }}
+                    </div>
+                    <button type="submit" name="add_comment" class="btn btn-primary">
+                        <i class="fas fa-comment"></i> Ajouter un commentaire
+                    </button>
+                </form>
+
+                <!-- Upload attachments -->
+                <hr>
+                <h6 class="mt-4">Ajouter des pièces jointes</h6>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="file" name="attachments" class="form-control" multiple accept="image/*,.pdf">
+                    </div>
+                    <button type="submit" name="add_attachment" class="btn btn-secondary">
+                        <i class="fas fa-paperclip"></i> Télécharger
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations détaillées -->
+    <div class="col-md-4">
+        <!-- Statut et Priorité -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> État du Ticket</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-toggle-on"></i> Statut</strong></label><br>
+                    {% if ticket.status == 'OPEN' %}
+                        <span class="badge bg-danger" style="padding: 0.75rem 1rem;"><i class="fas fa-circle-notch"></i> {{ ticket.get_status_display }}</span>
+                    {% elif ticket.status == 'IN_PROGRESS' %}
+                        <span class="badge bg-warning" style="padding: 0.75rem 1rem;"><i class="fas fa-spinner"></i> {{ ticket.get_status_display }}</span>
+                    {% elif ticket.status == 'RESOLVED' %}
+                        <span class="badge bg-info" style="padding: 0.75rem 1rem;"><i class="fas fa-check-circle"></i> {{ ticket.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge bg-success" style="padding: 0.75rem 1rem;"><i class="fas fa-lock"></i> {{ ticket.get_status_display }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-exclamation"></i> Priorité</strong></label><br>
+                    {% if ticket.priority == 'HIGH' %}
+                        <span class="badge bg-danger" style="padding: 0.75rem 1rem;"><i class="fas fa-arrow-up"></i> {{ ticket.get_priority_display }}</span>
+                    {% elif ticket.priority == 'MED' %}
+                        <span class="badge bg-warning" style="padding: 0.75rem 1rem;"><i class="fas fa-minus"></i> {{ ticket.get_priority_display }}</span>
+                    {% else %}
+                        <span class="badge bg-info" style="padding: 0.75rem 1rem;"><i class="fas fa-arrow-down"></i> {{ ticket.get_priority_display }}</span>
+                    {% endif %}
+                </div>
+
+                {% if ticket.is_urgent %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-bolt"></i> <strong>URGENT</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Demandeur et Assigné -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5><i class="fas fa-user-circle"></i> Personnes</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-user"></i> Demandeur</strong></label>
+                    <p class="form-control-plaintext">{{ ticket.requester_name }}</p>
+                    {% if ticket.requester_email %}
+                    <small class="text-muted">{{ ticket.requester_email }}</small>
+                    {% endif %}
+                </div>
+
+                {% if ticket.assigned_to %}
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-user-tie"></i> Assigné à</strong></label>
+                    <p class="form-control-plaintext">{{ ticket.assigned_to }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Catégorie et Dates -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5><i class="fas fa-calendar-alt"></i> Détails</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-list"></i> Catégorie</strong></label>
+                    <p class="form-control-plaintext">
+                        <span class="badge bg-secondary">{{ ticket.get_category_display }}</span>
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-plus-circle"></i> Créé le</strong></label>
+                    <p class="form-control-plaintext">{{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-sync"></i> Modifié le</strong></label>
+                    <p class="form-control-plaintext">{{ ticket.updated_at|date:"d/m/Y H:i" }}</p>
+                </div>
+
+                {% if ticket.resolved_at %}
+                <div class="mb-3">
+                    <label class="form-label"><strong><i class="fas fa-check"></i> Résolu le</strong></label>
+                    <p class="form-control-plaintext">{{ ticket.resolved_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div>
+            <a href="{% url 'ticket_edit' ticket.id %}" class="btn btn-primary w-100 mb-2">
+                <i class="fas fa-edit"></i> Éditer le Ticket
+            </a>
+            <a href="{% url 'ticket_list' %}" class="btn btn-secondary w-100">
+                <i class="fas fa-list"></i> Voir tous les Tickets
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.comment {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.comment:hover {
+    background-color: #f0f1f2;
+}
+
+.comment-header {
+    align-items: center;
+}
+
+.comment-text {
+    margin: 10px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.btn-sm-link {
+    padding: 0.25rem 0.5rem !important;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
