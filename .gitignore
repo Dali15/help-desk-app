@@ -37,3 +37,7 @@ db.sqlite3
 htmlcov/
 .pytest_cache/
 node_modules/
+# Debug scripts (not needed in production)
+debug_*.py
+keep_alive.py
+Procfile.worker

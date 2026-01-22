@@ -1,4 +1,0 @@
-# Keep-Alive Worker Configuration
-# This Procfile worker will ping the main app every 10 minutes to prevent cold shutdowns
-
-worker: python keep_alive.py
