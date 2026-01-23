@@ -9,6 +9,7 @@
 [![Live](https://img.shields.io/badge/Live-Render-46E3B7?style=flat-square&logo=render)](https://help-desk-tunisiar.onrender.com)
 
 **Production-ready ticket management system for Tunisair** 🌍
+*This project was developed during an internship at Tunisair as requested by the supervisor to avoid any legal issues.*
 
 [🚀 Live Demo](#-live-demo) • [📦 Installation](#-installation) • [🔧 Features](#-features) • [📚 Docs](#-documentation)
 
